@@ -1,0 +1,22 @@
+/** Absolute milliseconds from the first frame of the experience. */
+export const STORY_TIMELINE = Object.freeze([
+  { at: 0, type: "begin" },
+  { at: 5_600, type: "verse", text: "Sweet Hesper, double name", style: "typed", ruby: true },
+  { at: 7_200, type: "glow", value: "dim" },
+  { at: 8_500, type: "verse", text: "For what is one, the first, the last," },
+  { at: 12_200, type: "verse", text: "Thou, like my present and my past," },
+  { at: 17_400, type: "verse", text: "Thy place is changed;" },
+  { at: 20_400, type: "append", text: " thou art the same." },
+  { at: 23_000, type: "clear" },
+  { at: 26_000, type: "morning" },
+  { at: 34_000, type: "heartbeat" },
+  { at: 34_000, type: "verse", text: "I dream of a star,", style: "running" },
+  { at: 37_540, type: "verse", text: "a land of eternity,", style: "running" },
+  { at: 39_850, type: "verse", text: "where I shall be born—", style: "running" },
+  { at: 43_310, type: "verse", text: "and in the depth of its iterant flame", style: "running" },
+  { at: 46_800, type: "verse", text: "my ripples will embrace a world,", style: "running" },
+  { at: 50_000, type: "verse", text: "like the wheatfield in the blazing sun.", style: "running" },
+  { at: 58_000, type: "clear" },
+  { at: 62_910, type: "break" },
+  { at: 63_200, type: "verse", text: "Hello, world!", style: "typed" },
+]);

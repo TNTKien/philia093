@@ -1,10 +1,8 @@
 # philia093
 
-A Vanilla JavaScript recreation of the public `philia093.com` experience.
+A source-code recreation of the public `philia093.com` experience, built with Vanilla JavaScript and Vite.
 
-The original production client bundle supplied for this project is kept as a gzip-compressed asset at `public/assets/site-runtime.js.gzbin`. It contains the site's own terminal, story engine, Canvas renderers, and audio synchronization. `src/main.js` decompresses that bundle in the browser and loads it as an ES module. `src/styles.css` contains the corresponding site styles, with the palette token encoding corrected to match the runtime.
-
-Vite is used only for local development and production builds. There is no React, Vue, or UI framework.
+The application runtime is organized as readable modules. It does not import or execute the original production JavaScript bundle.
 
 ## Run locally
 
@@ -22,40 +20,41 @@ bun run build
 bun run preview
 ```
 
-## Assets
+Run unit tests:
 
-The client runtime expects these paths:
+```bash
+bun run test
+```
 
-- `public/audio/TruE.aac`
-- `public/audio/WithYouOnceMore.aac`
-- `public/assets/aha-signature-Y7J0VfU6.svg`
-- `public/assets/favicon.ico`
-- `public/assets/apple-touch-icon.png`
+## Source layout
 
-The audio tracks are fetched and decoded by the runtime before the story begins. Keep their filenames and paths unchanged unless you also update the runtime.
+- `src/main.js`: application bootstrap and browser lifecycle.
+- `src/runtime/`: visitor persistence, abortable delays, and the deterministic timeline clock.
+- `src/terminal/`: safe DOM terminal renderer and data-driven sequence player.
+- `src/content/`: terminal copy and timing data.
+- `src/scene/`: scene timeline, orchestration, responsive canvas surface, and visual renderers.
+- `src/audio/`: Web Audio loading, synchronization, and lifecycle.
+- `src/styles.css`: visual styles plus source-runtime transitions.
+- `public/audio/`: soundtrack files used by the experience.
+- `public/assets/`: favicon, touch icon, and signature asset.
 
-## Visitor state
+## Visitor flow
 
-The original client uses the localStorage key `aha.was-here` and stores an ISO timestamp after the first-visit terminal confirmation.
-
-To test the first-visit flow again, open DevTools Console and run:
+The visitor marker is stored under `aha.was-here`. Clear it in DevTools to replay the first-visit terminal:
 
 ```js
 localStorage.removeItem("aha.was-here");
 location.reload();
 ```
 
-To test the returning-visitor flow, leave the key in place and reload. Press a non-modifier key or click/tap the page to continue.
+The first visit plays the terminal sequence and waits for confirmation before starting the scene. Returning visitors see a continue prompt first.
 
-## Project structure
+For local development, `window.resetPhiliaVisit()` clears the marker and reloads the page. The development-only `window.philia093` object exposes timeline seek, pause, resume, and read-only state.
 
-- `index.html`: the original page's DOM entry points.
-- `src/main.js`: loads the compressed original client runtime.
-- `src/styles.css`: site styles and palette variables.
-- `public/assets/site-runtime.js.gzbin`: gzip-compressed client bundle.
-- `public/audio/`: the two soundtrack files.
-- `public/assets/`: favicon, touch icon, and signature.
+## Migration status
 
-The runtime is the minified production client bundle, not the original unminified authoring source. This preserves the original rendering and timing more faithfully than a separately reimplemented approximation, but it is less convenient to modify. If deeper customization is needed, the relevant parts can be reverse-engineered into readable modules later.
+The source runtime currently owns the visitor flow, terminal sequence, timeline clock, story event dispatcher, canvas renderers, and audio playback. Visual parity is still being checked against the live reference, so the previous compressed runtime asset is temporarily retained as a comparison artifact only. It is not imported or loaded by `src/main.js`.
 
-This is an independent recreation and is not affiliated with or endorsed by HoYoverse.
+The bundle can be removed after the source renderers and timing have been validated against the reference at each scene transition.
+
+This is an independent recreation and is not affiliated with or endorsed by HoYoverse. Use soundtrack and other copyrighted assets only where you have permission.
