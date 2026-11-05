@@ -1,42 +1,38 @@
-import { AudioPlayer } from './audio.js';
-import { Heartbeat } from './canvas/heartbeat.js';
-import { MobiusBackdrop } from './canvas/mobius.js';
-import { runTerminal, showContinuePrompt } from './terminal.js';
-import { StoryEngine } from './story.js';
-import { isFirstVisit, rememberVisitor, resetVisitor } from './storage.js';
-import './styles.css';
+import "./styles.css";
 
-const audio = new AudioPlayer();
-const mobius = new MobiusBackdrop(document.querySelector('#backdrop'));
-const heartbeat = new Heartbeat(document.querySelector('#heartbeat'));
-const story = new StoryEngine({ audio, mobius, heartbeat });
+// Load the original, self-contained production runtime from the supplied site bundle.
+// Keeping it as a single module preserves its renderer, story parser, and audio clock.
+const runtimeUrl = "/assets/site-runtime.js.gzbin";
 
-const params = new URLSearchParams(location.search);
-const fastMode = params.has('fast');
-if (params.has('reset')) resetVisitor();
+async function loadOriginalRuntime() {
+  const response = await fetch(runtimeUrl);
+  if (!response.ok) {
+    throw new Error(`Unable to load the animation runtime: HTTP ${response.status}`);
+  }
 
-// Begin fetching media before the sequence reaches its first music cue.
-audio.load();
+  if (!("DecompressionStream" in window)) {
+    throw new Error("This browser does not support gzip stream decompression.");
+  }
 
-if (isFirstVisit()) {
-  runTerminal({
-    fast: fastMode,
-    onConfirmed: () => {
-      // Resume the audio context inside the user's input gesture.
-      audio.unlock();
-      rememberVisitor();
-    },
-  }).then(() => story.start());
-} else {
-  showContinuePrompt(() => {
-    audio.unlock();
-    story.start();
-  });
+  const source = await new Response(
+    response.body.pipeThrough(new DecompressionStream("gzip")),
+  ).text();
+
+  const moduleUrl = URL.createObjectURL(
+    new Blob([source], { type: "text/javascript" }),
+  );
+
+  try {
+    await import(moduleUrl);
+  } finally {
+    URL.revokeObjectURL(moduleUrl);
+  }
 }
 
-// Useful during visual checks without adding a visible settings menu.
-window.philia093 = {
-  reset: resetVisitor,
-  start: () => story.start(),
-  stop: () => story.stop(),
-};
+loadOriginalRuntime().catch((error) => {
+  console.error("[philia093] Runtime could not start:", error);
+  const status = document.createElement("p");
+  status.className = "status";
+  status.textContent = "Hello, world!\nThe experience could not be loaded.";
+  document.body.append(status);
+});
