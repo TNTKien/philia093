@@ -7,7 +7,9 @@ const runtimeUrl = "/assets/site-runtime.js.gzbin";
 async function loadOriginalRuntime() {
   const response = await fetch(runtimeUrl);
   if (!response.ok) {
-    throw new Error(`Unable to load the animation runtime: HTTP ${response.status}`);
+    throw new Error(
+      `Unable to load the animation runtime: HTTP ${response.status}`,
+    );
   }
 
   if (!("DecompressionStream" in window)) {
