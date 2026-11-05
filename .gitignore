@@ -1,0 +1,9 @@
+node_modules/
+dist/
+.DS_Store
+.env*
+!.env.example
+
+# Large/copyrighted media is supplied locally and is not committed by default.
+public/audio/*
+!public/audio/README.md
